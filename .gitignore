@@ -15,3 +15,12 @@
 *.exe
 *.out
 *.app
+
+# WindRiver files
+ctdt.c
+
+# FRCMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile

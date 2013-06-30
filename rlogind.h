@@ -8,6 +8,10 @@
 #include <netinet/sctp.h>
 #include <netinet/in.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Configurable parameters */
 #define RLOGIND_PORT 513
 #define RLOGIND_CONN_MAX 10
@@ -89,5 +93,8 @@ int rlogind_pipe(int pipefd[2]);
 void rlogind_cleanup(struct rlogind_state_t *state);
 int rlogind_main(void);
 
+#ifdef __cplusplus
+}
 #endif
 
+#endif // _RLOGIND_H

@@ -14,7 +14,8 @@ rlogind_cppentry()
   FUNCPTR entryptr;
   uint8_t symtype;
 
-  symFindByName(sysSymTbl, "rlogind_entry", (char **)&entryptr, &symtype);
+  char symbolName[] = "rlogind_entry";
+  symFindByName(sysSymTbl, symbolName, (char **)&entryptr, &symtype);
   entryptr();
 
   return 0;
