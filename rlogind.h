@@ -17,6 +17,7 @@ extern "C" {
 #define RLOGIND_CONN_MAX 10
 #define RLOGIND_BUFSIZE 1024
 #define RLOGIND_USESERIAL 1
+#define RLOGIND_AUTORLOGIN_PORT 35120
 /* #define RLOGIND_DEBUG */
 
 struct rlogind_term_t {
@@ -90,6 +91,7 @@ int rlogind_lookupsd(struct rlogind_term_t *fdlist, int nelem, int sd);
 int rlogind_close(struct rlogind_term_t *fdlist, int nelem, int index);
 void rlogind_randstring(char *str);
 int rlogind_pipe(int pipefd[2]);
+int rlogind_sendbroadcast(void);
 void rlogind_cleanup(struct rlogind_state_t *state);
 int rlogind_main(void);
 
@@ -97,4 +99,4 @@ int rlogind_main(void);
 }
 #endif
 
-#endif // _RLOGIND_H
+#endif /* _RLOGIND_H */

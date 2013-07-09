@@ -421,6 +421,54 @@ rlogind_pipe(int pipefd[2])
   return 0;
 }
 
+/* Send a broadcast UDP packet to let clients know
+   that the server finished starting. */
+int
+rlogind_sendbroadcast()
+{
+  int broadcastEnable;
+  int error;
+  int sd;
+  struct sockaddr_in addr;
+
+  /* A zero port disables broadcasting */
+  if(RLOGIND_AUTORLOGIN_PORT == 0) return 0;
+
+  /* Create a socket */
+  sd = socket(AF_INET, SOCK_DGRAM, 0);
+
+  /* Bind the socket */
+  memset(&addr, 0, sizeof(struct sockaddr_in));
+  addr.sin_family = AF_INET;
+  addr.sin_port = 0;
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  error = bind(sd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
+  if(error != 0) {
+    return 1;
+  }
+
+  /* Enable broadcasting */
+  broadcastEnable = 1;
+  setsockopt(sd, SOL_SOCKET, SO_BROADCAST, (char *) &broadcastEnable,
+    sizeof(int));
+
+  /* Set up the address we're sending to. */
+  memset(&addr, 0, sizeof(struct sockaddr_in));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(RLOGIND_AUTORLOGIN_PORT);
+  addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+
+  /* Send a broadcast packet */
+  error = sendto(sd, "hello, world", 12, 0, (struct sockaddr *) &addr,
+    sizeof(struct sockaddr_in));
+  if(error < 1) {
+    return 1;
+  }
+
+  return 0;
+}
+
+
 /* Clean up rlogind's state before exit. */
 void
 rlogind_cleanup(struct rlogind_state_t *state)
@@ -649,6 +697,9 @@ rlogind_main()
     rlogind_cleanup(&state);
     return 1;
   }
+
+  /* Send out the advertisement broadcast UDP packet. */
+  rlogind_sendbroadcast();
 
   /* Set the global rlogind_state_t pointer */
   rlogind_gstate = &state;

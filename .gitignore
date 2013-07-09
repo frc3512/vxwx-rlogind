@@ -16,6 +16,9 @@
 *.out
 *.app
 
+# Certain scripts
+makei586.sh
+
 # WindRiver files
 ctdt.c
 
