@@ -5,6 +5,7 @@
 #include <shellLib.h>
 #include <ptyDrv.h>
 #include <sigLib.h>
+#include <timers.h>
 
 #include <errnoLib.h>
 #include <ioLib.h>
@@ -431,6 +432,13 @@ rlogind_sendbroadcast()
   int sd;
   struct sockaddr_in addr;
 
+  int i;
+  struct timespec tm;
+  int32_t uid;
+  char uidbuf[4];
+
+  struct timespec rqtp;
+
   /* A zero port disables broadcasting */
   if(RLOGIND_AUTORLOGIN_PORT == 0) return 0;
 
@@ -444,6 +452,7 @@ rlogind_sendbroadcast()
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
   error = bind(sd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
   if(error != 0) {
+    close(sd);
     return 1;
   }
 
@@ -458,16 +467,44 @@ rlogind_sendbroadcast()
   addr.sin_port = htons(RLOGIND_AUTORLOGIN_PORT);
   addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
 
-  /* Send a broadcast packet */
-  error = sendto(sd, "hello, world", 12, 0, (struct sockaddr *) &addr,
-    sizeof(struct sockaddr_in));
-  if(error < 1) {
-    return 1;
+  /* Generate a random identifier for this session */
+  clock_gettime(CLOCK_REALTIME, &tm);
+  srand(tm.tv_sec);
+  uid = rand();
+  memcpy(uidbuf, &uid, 4);
+
+  /* Send six broadcast packets */
+  for(i = 0; i < RLOGIND_AUTORLOGIN_TRIES; i++) {
+    /* Send a packet */
+    error = sendto(sd, (caddr_t) uidbuf, 4, 0, (struct sockaddr *) &addr,
+      sizeof(struct sockaddr_in));
+
+    /* OK? */
+    if(error < 1) {
+#ifdef RLOGIND_DEBUG
+      fprintf(stderr, "rlogind: sending autorlogin packet failed\n");
+#endif
+      close(sd);
+      return 1;
+    }
+
+    /* HACK: Wait a bit */
+    rqtp.tv_sec = 0;
+    rqtp.tv_nsec = 10; /* 100ns */
+    while(rqtp.tv_sec != 0 || rqtp.tv_nsec != 0) {
+      if(nanosleep(&rqtp, &rqtp) != 0) {
+#ifdef RLOGIND_DEBUG
+        fprintf(stderr, "rlogind: nanosleep() failed\n");
+#endif
+        break;
+      }
+    }
+
   }
 
+  close(sd);
   return 0;
 }
-
 
 /* Clean up rlogind's state before exit. */
 void

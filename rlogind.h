@@ -18,6 +18,7 @@ extern "C" {
 #define RLOGIND_BUFSIZE 1024
 #define RLOGIND_USESERIAL 1
 #define RLOGIND_AUTORLOGIN_PORT 35120
+#define RLOGIND_AUTORLOGIN_TRIES 6
 /* #define RLOGIND_DEBUG */
 
 struct rlogind_term_t {
@@ -100,3 +101,4 @@ int rlogind_main(void);
 #endif
 
 #endif /* _RLOGIND_H */
+
