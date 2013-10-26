@@ -67,7 +67,7 @@ The UDP port to which UDP broadcast advertisements will be sent. If this symbol 
 
 Getting Started
 ---------------
-Follow these steps to get vxwx-rlogind running on your FIRST FRC cRio controller.
+Follow these steps to get vxwx-rlogind running on your FIRST FRC cRIO controller.
 
 ### Compile the Software ###
 
@@ -75,11 +75,11 @@ This software has been tested using both the FIRST FRC WindRiver Workbench (GCC 
 
 ### Upload the Binary ###
 
-Building the software will generate a binary with the extension ".out" . This binary should uploaded by FTP to the path "/c/ni-rt/system/vxwx-rlogind.out" on the cRio controller.
+Building the software will generate a binary with the extension ".out" . This binary should uploaded by FTP to the path "/c/ni-rt/system/vxwx-rlogind.out" on the cRIO controller.
 
 ### Edit ni-rt.ini ###
 
-An entry must also be added into the "/c/ni-rt.ini" configuration file on the cRio controller for the module to be loaded at startup. The ni-rt.ini file should be downloaded, edited, and the modified version uploaded. The file should be modified as follows:
+An entry must also be added into the "/c/ni-rt.ini" configuration file on the cRIO controller for the module to be loaded at startup. The ni-rt.ini file should be downloaded, edited, and the modified version uploaded. The file should be modified as follows:
 
 Locate the "STARTUP" section.
 ```
