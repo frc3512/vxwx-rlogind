@@ -433,9 +433,9 @@ rlogind_sendbroadcast()
   struct sockaddr_in addr;
 
   int i;
-  struct timespec tm;
   int32_t uid;
   char uidbuf[4];
+  FILE *fp;
 
   struct timespec rqtp;
 
@@ -467,11 +467,18 @@ rlogind_sendbroadcast()
   addr.sin_port = htons(RLOGIND_AUTORLOGIN_PORT);
   addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
 
-  /* Generate a random identifier for this session */
-  clock_gettime(CLOCK_REALTIME, &tm);
-  srand(tm.tv_sec);
-  uid = rand();
-  memcpy(uidbuf, &uid, 4);
+  /* Get a unique identifier for this session */
+  fp = fopen("rlogin-uid", "rb");
+  uid = 0;
+  fread(&uid, sizeof(int32_t), 1, fp);
+  uid++;
+  fclose(fp);
+
+  fp = fopen("rlogin-uid", "wb");
+  fwrite(&uid, 4, 1, fp);
+  fclose(fp);
+
+  memcpy(uidbuf, &uid, sizeof(int32_t));
 
   /* Send six broadcast packets */
   for(i = 0; i < RLOGIND_AUTORLOGIN_TRIES; i++) {
